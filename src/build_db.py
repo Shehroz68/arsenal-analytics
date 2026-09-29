@@ -19,7 +19,9 @@ matches = pd.concat(frames, ignore_index=True)
 # keep a core set of columns (odds columns vary by season)
 core = ["season", "Date", "HomeTeam", "AwayTeam", "FTHG", "FTAG", "FTR",
         "HS", "AS", "HST", "AST", "HF", "AF", "HC", "AC", "HY", "AY", "HR", "AR",
-        "Referee", "B365H", "B365D", "B365A"]
+        "Referee", "B365H", "B365D", "B365A",
+        "PSH", "PSD", "PSA",  # Pinnacle (from 2012/13): a sharper market than Bet365
+        "WHH", "WHD", "WHA"]  # William Hill: fallback for early seasons
 matches = matches[[c for c in core if c in matches.columns]]
 matches.columns = [c.lower() for c in matches.columns]
 matches = matches.sort_values(["date", "hometeam"]).reset_index(drop=True)

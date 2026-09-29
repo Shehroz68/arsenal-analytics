@@ -1,4 +1,4 @@
--- 1. rows per season (expect 380 each)
+-- 1. rows per season (expect 380 each, the current season will be lower if it is still in progress)
 SELECT season, COUNT(*) AS n FROM matches GROUP BY season;
 
 -- 2. nulls in key columns
