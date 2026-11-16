@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from metrics import brier_per_match, result_to_int, rps_per_match
 
@@ -24,3 +25,13 @@ def test_brier_uniform():
 
 def test_result_to_int():
     assert list(result_to_int(["H", "D", "A"])) == [0, 1, 2]
+
+
+@pytest.mark.parametrize("invalid", ["", "X", "h", None, np.nan, 2])
+def test_result_to_int_rejects_invalid_results(invalid):
+    with pytest.raises(ValueError, match="only H, D, or A"):
+        result_to_int(["H", invalid, "A"])
+
+
+def test_result_to_int_empty():
+    assert result_to_int([]).size == 0

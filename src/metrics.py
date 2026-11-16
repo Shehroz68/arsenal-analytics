@@ -40,6 +40,8 @@ def summary(p: np.ndarray, y: np.ndarray) -> dict:
 
 
 def result_to_int(ftr) -> np.ndarray:
-    """'H' -> 0, 'D' -> 1, 'A' -> 2"""
+    """Map H/D/A to 0/1/2; reject missing or unknown match results."""
     ftr = np.asarray(ftr)
+    if not np.isin(ftr, ["H", "D", "A"]).all():
+        raise ValueError("Match results must contain only H, D, or A")
     return np.select([ftr == "H", ftr == "D"], [0, 1], 2)
