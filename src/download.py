@@ -22,3 +22,6 @@ for s in seasons:
         failed.append(s)
 
 print("failed seasons:", failed or "none")
+
+if failed:
+    raise SystemExit(1)
