@@ -11,7 +11,9 @@ SELECT DISTINCT hometeam FROM matches ORDER BY 1;
 
 -- 4. result column matches the score (expect 0)
 SELECT COUNT(*) AS bad_results FROM matches
-WHERE (fthg > ftag AND ftr != 'H') OR (fthg < ftag AND ftr != 'A') OR (fthg = ftag AND ftr != 'D');
+WHERE ftr IS NULL OR ftr NOT IN ('H', 'D', 'A')
+   OR fthg IS NULL OR ftag IS NULL
+   OR (fthg > ftag AND ftr != 'H') OR (fthg < ftag AND ftr != 'A') OR (fthg = ftag AND ftr != 'D');
 
 -- 5. Arsenal appears identically home and away
 SELECT 'home' AS side, COUNT(*) FROM matches WHERE hometeam = 'Arsenal'
