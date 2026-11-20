@@ -8,13 +8,22 @@ import numpy as np
 EPS = 1e-12
 
 
+def _validate_outcomes(y):
+    y = np.asarray(y)
+    if y.ndim != 1 or (y.size and (y.dtype.kind not in "iu" or not np.isin(y, [0, 1, 2]).all())):
+        raise ValueError("Outcomes must be a one-dimensional array of integers 0, 1, or 2")
+    return y.astype(int, copy=False)
+
+
 def one_hot(y: np.ndarray) -> np.ndarray:
+    y = _validate_outcomes(y)
     out = np.zeros((len(y), 3))
     out[np.arange(len(y)), y] = 1
     return out
 
 
 def log_loss_per_match(p: np.ndarray, y: np.ndarray) -> np.ndarray:
+    y = _validate_outcomes(y)
     return -np.log(np.clip(p[np.arange(len(y)), y], EPS, 1))
 
 
