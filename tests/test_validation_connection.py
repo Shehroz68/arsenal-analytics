@@ -4,6 +4,8 @@ from pathlib import Path
 import sqlite3
 import tempfile
 import unittest
+from unittest.mock import Mock, patch
+import types
 
 SCRIPT = Path(__file__).resolve().parents[1] / "src/validate.py"
 spec = importlib.util.spec_from_file_location("validation", SCRIPT)
@@ -32,3 +34,21 @@ class ConnectionTests(unittest.TestCase):
                     con.execute("DELETE FROM matches")
             finally:
                 con.close()
+
+
+class ValidationRunnerTests(unittest.TestCase):
+    def test_connection_closed_on_success_and_query_failure(self):
+        for failure in (None, RuntimeError("query failed")):
+            con = Mock()
+            read_sql = Mock(side_effect=failure)
+            pandas = types.SimpleNamespace(read_sql=read_sql)
+            with self.subTest(failure=failure):
+                with patch.dict("sys.modules", {"pandas": pandas}):
+                    with patch.object(validation, "connect_existing", return_value=con) as connect:
+                        if failure:
+                            with self.assertRaises(RuntimeError):
+                                validation.main()
+                        else:
+                            validation.main()
+                        connect.assert_called_once_with(SCRIPT.parents[1] / "data/processed/epl.db")
+                con.close.assert_called_once_with()
