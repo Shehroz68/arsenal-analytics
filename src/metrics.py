@@ -15,6 +15,14 @@ def _validate_outcomes(y):
     return y.astype(int, copy=False)
 
 
+def _validate_forecasts(p, y):
+    y = _validate_outcomes(y)
+    p = np.asarray(p)
+    if p.shape != (len(y), 3):
+        raise ValueError("Forecasts must have shape (number of outcomes, 3)")
+    return p, y
+
+
 def one_hot(y: np.ndarray) -> np.ndarray:
     y = _validate_outcomes(y)
     out = np.zeros((len(y), 3))
@@ -23,22 +31,25 @@ def one_hot(y: np.ndarray) -> np.ndarray:
 
 
 def log_loss_per_match(p: np.ndarray, y: np.ndarray) -> np.ndarray:
-    y = _validate_outcomes(y)
+    p, y = _validate_forecasts(p, y)
     return -np.log(np.clip(p[np.arange(len(y)), y], EPS, 1))
 
 
 def brier_per_match(p: np.ndarray, y: np.ndarray) -> np.ndarray:
+    p, y = _validate_forecasts(p, y)
     return ((p - one_hot(y)) ** 2).sum(axis=1)
 
 
 def rps_per_match(p: np.ndarray, y: np.ndarray) -> np.ndarray:
     """Ranked probability score: respects the ordering home > draw > away (lower is better)."""
+    p, y = _validate_forecasts(p, y)
     cp = np.cumsum(p, axis=1)[:, :2]
     co = np.cumsum(one_hot(y), axis=1)[:, :2]
     return ((cp - co) ** 2).sum(axis=1) / 2
 
 
 def summary(p: np.ndarray, y: np.ndarray) -> dict:
+    p, y = _validate_forecasts(p, y)
     return {
         "n": len(y),
         "log_loss": log_loss_per_match(p, y).mean(),
