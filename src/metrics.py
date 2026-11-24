@@ -20,6 +20,10 @@ def _validate_forecasts(p, y):
     p = np.asarray(p)
     if p.shape != (len(y), 3):
         raise ValueError("Forecasts must have shape (number of outcomes, 3)")
+    if p.dtype.kind not in "iuf" or not np.isfinite(p).all() or ((p < 0) | (p > 1)).any():
+        raise ValueError("Forecast probabilities must be finite numbers between 0 and 1")
+    if not np.allclose(p.sum(axis=1), 1, rtol=1e-5, atol=1e-8):
+        raise ValueError("Forecast probabilities must sum to 1 for each match")
     return p, y
 
 
