@@ -25,7 +25,9 @@ BASE = 1500.0
 
 
 def expected(r_home: float, r_away: float, hfa: float) -> float:
-    return 1.0 / (1.0 + 10 ** (-(r_home + hfa - r_away) / 400.0))
+    # logaddexp avoids overflow for large rating differences.
+    log_odds = (r_home + hfa - r_away) * (np.log(10.0) / 400.0)
+    return float(np.exp(-np.logaddexp(0.0, -log_odds)))
 
 
 def mov_multiplier(goal_diff: int, winner_elo_edge: float) -> float:
