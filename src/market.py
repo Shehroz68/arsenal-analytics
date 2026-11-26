@@ -45,7 +45,13 @@ def power(odds: np.ndarray) -> np.ndarray:
     for i, row in enumerate(inv):
         if np.isnan(row).any():
             continue
-        k = brentq(lambda k: (row ** k).sum() - 1, 0.5, 3.0)
+        if not np.isfinite(row).all() or ((row <= 0) | (row >= 1)).any():
+            raise ValueError("Decimal odds must be finite and greater than 1")
+        objective = lambda k: (row ** k).sum() - 1
+        upper = 1.0
+        while objective(upper) > 0:
+            upper *= 2
+        k = brentq(objective, 0.0, upper)
         out[i] = row ** k
     return out
 
