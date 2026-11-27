@@ -69,6 +69,8 @@ def market_probs(m: pd.DataFrame) -> pd.DataFrame:
                                         "model": f"market_{book}_{method}",
                                         "p_home": p[:, 0], "p_draw": p[:, 1], "p_away": p[:, 2],
                                         "overround": (1 / odds).sum(axis=1) - 1}))
+    if not frames:
+        return pd.DataFrame(columns=["match_id", "season", "model", *PCOLS, "overround"])
     return pd.concat(frames, ignore_index=True)
 
 
